@@ -46,9 +46,9 @@ func pingHostCmd(ctx context.Context, host string, attempts int) (bool, string, 
 	var args []string
 	switch runtime.GOOS {
 	case "windows":
-		args = []string{"-n", fmt.Sprint(attempts), host}
+		args = []string{"-n", fmt.Sprint(attempts),"-w", "800" ,host}
 	default: // linux, darwin, *bsd
-		args = []string{"-c", fmt.Sprint(attempts), host}
+		args = []string{"-c", fmt.Sprint(attempts), "-W", "1", host}
 	}
 
 	cmd := exec.CommandContext(ctx, "ping", args...)
@@ -84,25 +84,20 @@ func pingHostCmd(ctx context.Context, host string, attempts int) (bool, string, 
 func isPingSuccessful(output, os string, attempts int) bool {
 	outputLower := strings.ToLower(output)
 
-	// On Linux/macOS: look for "0% packet loss" or received packets
 	if os != "windows" {
-		// Example: "5 packets transmitted, 5 received, 0% packet loss"
 		if strings.Contains(outputLower, "received") &&
 			!strings.Contains(outputLower, "100% packet loss") {
 			return true
 		}
-		// Some systems: "5 packets transmitted, 0 received"
 		if strings.Contains(outputLower, "0 received") {
 			return false
 		}
 		return strings.Contains(outputLower, "bytes from")
 	}
 
-	// Windows: look for "Received = X" and "Lost = 0"
 	if strings.Contains(outputLower, "received =") {
 		return !strings.Contains(outputLower, "lost = "+fmt.Sprint(attempts))
 	}
-	// Or: "Reply from ..."
 	return strings.Contains(outputLower, "reply from")
 }
 

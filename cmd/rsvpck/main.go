@@ -62,34 +62,30 @@ func main() {
 		return
 	}
 	
-	h := hostinfo.GetCRMInfo(ctx)
-	autostrCfg := autostr.Config{Separator: autostr.Ptr("\n"), FieldValueSeparator: autostr.Ptr(" : "), PrettyPrint: true}
-
-	stopSpinner := startAnimatedSpinner(os.Stdout, ctx, 120 * time.Millisecond)	
-
-	text.PrintBlock(os.Stdout, "SYSTEM INFORMATION", autostr.String(h, autostrCfg), renderConf)
-	h.TLSCert, err = httpx.GetCertificatesSmart(ctx, "insite-eu.gehealthcare.com:443", "insite-eu.gehealthcare.com", testConfig.VPNIPs)
-
-	stopSpinner()
-
-	if err == nil {
-		text.PrintList(os.Stdout, "TLS certificates, eu-insite.gehealthcare.com\n", h.TLSCert, renderConf)
-	} else {
-		fmt.Println("Failed fetching certificates")
-	}
-
 	tcpChecker := &tcp.Checker{}
 	dnsChecker := &dns.Checker{}
 	httpChecker := &http.Checker{}
 	icmpChecker := &icmp.Checker{}
 
-
-	stopSpinner = startAnimatedSpinner(os.Stdout, ctx, 120 * time.Millisecond)
-
-	executor := app.NewExecutor(tcpChecker, dnsChecker, httpChecker, icmpChecker, domain.PolicyExhaustive)
+	prober := app.NewCompositeProber(tcpChecker,dnsChecker, httpChecker, icmpChecker)
+	stopSpinner := startAnimatedSpinner(os.Stdout, ctx, 120 * time.Millisecond)
+	executor := app.NewExecutor(prober, domain.PolicyExhaustive)
 	result := executor.Run(ctx, testConfig)
-
 	stopSpinner()
+
+	if result.IsConnected {
+		h := hostinfo.GetCRMInfo(ctx)
+		autostrCfg := autostr.Config{Separator: autostr.Ptr("\n"), FieldValueSeparator: autostr.Ptr(" : "), PrettyPrint: true}
+
+		text.PrintBlock(os.Stdout, "SYSTEM INFORMATION", autostr.String(h, autostrCfg), renderConf)
+		h.TLSCert, err = httpx.GetCertificatesSmart(ctx, "insite-eu.gehealthcare.com:443", "insite-eu.gehealthcare.com", testConfig.VPNIPs)
+		if err == nil {
+			text.PrintList(os.Stdout, "TLS certificates, eu-insite.gehealthcare.com\n", h.TLSCert, renderConf)
+		} else {
+			fmt.Println("Failed fetching certificates")
+		}
+	}
+
 
 	if rsvpConf.textRender {
 		renderer = text.NewRenderer(renderConf)

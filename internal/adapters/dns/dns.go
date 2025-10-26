@@ -10,11 +10,16 @@ import (
 	"time"
 )
 
+const dnsTimeout = 800 * time.Millisecond
+
 type Checker struct{}
 
 var _ domain.DNSChecker = (*Checker)(nil)
 
-func (r Checker) CheckWithContext(ctx context.Context, ep domain.Endpoint) domain.Probe {
+func (r Checker) CheckWithContext(parentCtx context.Context, ep domain.Endpoint) domain.Probe {
+	ctx, cancel := context.WithTimeout(parentCtx, dnsTimeout)
+    defer cancel()
+
 	start := time.Now()
 	_, err := net.DefaultResolver.LookupHost(ctx, ep.Target)
 	latencyMs := time.Since(start).Seconds() * 1000
@@ -37,11 +42,20 @@ func (r *Checker) LookupHost(ctx context.Context, host string, timeout time.Dura
 	ctx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
-	strIPs, err := net.DefaultResolver.LookupHost(ctx, host)
+	var dialer = &net.Dialer{Timeout: 800 * time.Millisecond}
+
+	var fastResolver = &net.Resolver{
+    	PreferGo: true,
+    	Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
+    	    // Force a short DNS timeout regardless of system resolver settings
+    	    return dialer.DialContext(ctx, "udp", "8.8.8.8:53")
+    	},
+	}
+	strIPs, err := fastResolver.LookupHost(ctx, host)
+	//strIPs, err := net.DefaultResolver.LookupHost(ctx, host)
 	if err != nil {
 		return nil, err
 	}
-
 	addrs := make([]netip.Addr, 0, len(strIPs))
 	for _, ip := range strIPs {
 		if addr, perr := netip.ParseAddr(ip); perr == nil {

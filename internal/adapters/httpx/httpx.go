@@ -15,7 +15,7 @@ import (
 	"github.com/azargarov/rsvpck/internal/domain"
 )
 
-const singleProxyTimeout = 2 *time.Second
+const singleProxyTimeout = 1 *time.Second
 
 func GetCertificatesSmart(ctx context.Context, addr, serverName string, vpnProxy []string) ([]domain.TLSCertificate, error) {
 

@@ -66,7 +66,7 @@ func (p *Probe) MarkSuccess(latMs float64) {
 }
 
 func (p *Probe) MarkFailure(st Status, err error) {
-	p.Status = StatusFail
+	p.Status = st
 	p.Error = safeErr(err)
 	p.Timestamp = time.Now()
 }

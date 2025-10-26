@@ -3,6 +3,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.3.0] — 2025-10-26
+
+### Added
+- **Concurrent execution via worker pool** — all probes (ICMP, DNS, TCP, HTTP, TLS) now run in parallel using a unified pool.
+- **Retry & backoff logic** for transient I/O failures, with exponential backoff and per-job retry policies.
+
+### Changed
+- **Removed execution policies.**  
+  The previous `Optimized` vs `Exhaustive` distinction is deprecated.  
+  All probes now execute concurrently since the workload is I/O-bound and benefits from higher parallelism.
+- **Default pool size increased** to 15 workers (configurable).  
+  Since probes spend most time waiting on network I/O, worker count can safely exceed CPU cores (recommended max ≈ 50).
+- **Simplified executor flow** — no ICMP gating; all endpoints are tested in a single pass for faster overall runtime.
+- **Improved probe status handling** — `MarkFailure` now preserves detailed classifier statuses (Timeout, DNSFailure, etc.).
+- **Go 1.24 syntax updates** — uses modern `for range n` loops and streamlined concurrency patterns.
+
+### Fixed
+- Corrected race-safe worker accounting using atomic counters.
+- Properly handle context cancellation and job cleanup on shutdown.
+
+### Notes
+- The `--policy` flag is ignored and will be removed in a future release.
+- v0.3.0 focuses on correctness, simplicity, and performance; smarter scheduling logic may return in v0.4.x.
+
+
 ## [v0.2.0] — 2025-10-19
 
 ### Added

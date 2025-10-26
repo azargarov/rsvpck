@@ -8,6 +8,10 @@ import (
 	"time"
 )
 
+const(
+	dialTimeOut = 1*time.Second
+)
+
 type TCPDialer struct{}
 
 var _ domain.TCPChecker = (*TCPDialer)(nil)
@@ -15,7 +19,7 @@ var _ domain.TCPChecker = (*TCPDialer)(nil)
 func (d *TCPDialer) CheckWithContext(ctx context.Context, ep domain.Endpoint) domain.Probe {
 	addr := ep.Target
 	start := time.Now()
-	conn, err := net.DialTimeout("tcp", addr, 3*time.Second)
+	conn, err := net.DialTimeout("tcp", addr, dialTimeOut)
 	latencyMs := time.Since(start).Seconds() * 1000
 
 	if err != nil {

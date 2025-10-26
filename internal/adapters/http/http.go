@@ -6,7 +6,12 @@ import (
 	"github.com/azargarov/rsvpck/internal/domain"
 	"net/http"
 	"net/url"
+	//"net"
 	"time"
+)
+
+const (
+	requestTimeOut = 1 * time.Second
 )
 
 type Checker struct{}
@@ -43,9 +48,26 @@ func (c Checker) doRequest(ctx context.Context, ep domain.Endpoint, proxyURL *ur
 		transport = t
 	}
 
+	//var dialer = &net.Dialer{Timeout: requestTimeOut}
+	//var fastResolver = &net.Resolver{
+	//    PreferGo: true,
+	//    Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
+	//        return dialer.DialContext(ctx, "udp", "8.8.8.8:53")
+	//    },
+	//}
+	////t := http.DefaultTransport.(*http.Transport).Clone()
+	//t := transport.(*http.Transport).Clone()
+	//t.DialContext = (&net.Dialer{Timeout: 500 * time.Millisecond}).DialContext
+	//t.TLSHandshakeTimeout = 500 * time.Millisecond
+	//t.ResponseHeaderTimeout = 500 * time.Millisecond
+	//net.DefaultResolver = fastResolver  
+	//client := &http.Client{ Transport: t, Timeout: 1 * time.Second }
+
+
+
 	client := &http.Client{
 		Transport: transport,
-		Timeout:   10 * time.Second, // overall request timeout
+		Timeout:   requestTimeOut, 
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			return http.ErrUseLastResponse // don't follow redirects
 		},
