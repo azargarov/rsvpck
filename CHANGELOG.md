@@ -14,7 +14,7 @@ All notable changes to this project will be documented in this file.
   The previous `Optimized` vs `Exhaustive` distinction is deprecated.  
   All probes now execute concurrently since the workload is I/O-bound and benefits from higher parallelism.
 - **Default pool size increased** to 15 workers (configurable).  
-  Since probes spend most time waiting on network I/O, worker count can safely exceed CPU cores (recommended max ≈ 50).
+  Since probes spend most time waiting on network I/O, worker count can safely exceed CPU cores (hard coded max 25).
 - **Simplified executor flow** — no ICMP gating; all endpoints are tested in a single pass for faster overall runtime.
 - **Improved probe status handling** — `MarkFailure` now preserves detailed classifier statuses (Timeout, DNSFailure, etc.).
 - **Go 1.24 syntax updates** — uses modern `for range n` loops and streamlined concurrency patterns.
