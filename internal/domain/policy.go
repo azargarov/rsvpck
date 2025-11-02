@@ -12,6 +12,8 @@ var policyToString = map[ExecutionPolicy]string{
 	PolicyExhaustive: "Exhaustive",
 }
 
+const defaultPolicy = PolicyExhaustive
+
 var stringToPolicy map[string]ExecutionPolicy
 
 func init() {
@@ -37,5 +39,5 @@ func ParseExecutionPolicyWithDefault(s string) ExecutionPolicy {
 	if policy, exists := stringToPolicy[s]; exists {
 		return policy
 	}
-	return PolicyOptimized 
+	return defaultPolicy
 }
