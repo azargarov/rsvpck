@@ -163,3 +163,11 @@ func (e Endpoint) IsICMP() bool {
 func (e Endpoint) IsDNS() bool {
 	return e.TargetType == TargetTypeDNS
 }
+
+func (e Endpoint) IsTCP() bool {
+	return e.TargetType == TargetTypeTCP
+}
+
+func (e Endpoint) IsHTTP() bool {
+	return e.TargetType == TargetTypeHTTP
+}
