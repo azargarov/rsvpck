@@ -12,6 +12,8 @@ import (
 	"github.com/azargarov/rsvpck/internal/config"
 	"github.com/azargarov/rsvpck/internal/app"
 	"github.com/azargarov/rsvpck/internal/domain"
+	"github.com/azargarov/rsvpck/internal/version"
+
 	//"github.com/azargarov/rsvpck/internal/adapters/speedtest"
 
 	"context"
@@ -23,7 +25,7 @@ import (
 	"bufio"
 )
 //TODO: if TLS is stuck thre rest fails due to timeout.
-var version = "dev"
+//TODO: check link before test connection.
 
 const (
     applicationName = "RSvP connectivity checker"
@@ -34,7 +36,7 @@ func main() {
 	
 	rsvpConf := parseFlagsToConfig()
 	if rsvpConf.printVersion{
-		fmt.Printf("%s, version %s\n", applicationName, version)
+		fmt.Printf("%s, version %s\n", applicationName, version.String())
 		return
 	}
 

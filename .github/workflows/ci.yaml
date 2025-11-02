@@ -76,7 +76,11 @@ jobs:
           [ "${{ matrix.goos }}" = "windows" ] && bin="${base}.exe"
           PKG=./cmd/rsvpck
           GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} \
-            go build -trimpath -ldflags "-s -w -X main.version=${{ steps.ver.outputs.version }}" \
+            go build -trimpath -ldflags "\
+            -s -w \
+            -X github.com/azargarov/rsvpck/internal/version.Version=${{ steps.ver.outputs.version }} \
+            -X github.com/azargarov/rsvpck/internal/version.BuildDate=$(date -u +'%Y-%m-%d_%H:%M:%S') \
+            -X github.com/azargarov/rsvpck/internal/version.CommitHash=${{ github.sha }}" \
             -o "dist/${bin}" "$PKG"
 
       - name: UPX compress
