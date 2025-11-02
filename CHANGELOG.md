@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 - **Concurrent execution via worker pool** — all probes (ICMP, DNS, TCP, HTTP, TLS) now run in parallel using a unified pool.
 - **Retry & backoff logic** for transient I/O failures, with exponential backoff and per-job retry policies.
+- **Spinner** while collecting results for better UX.
 
 ### Changed
 - **Removed execution policies.**  
@@ -18,6 +19,7 @@ All notable changes to this project will be documented in this file.
 - **Simplified executor flow** — no ICMP gating; all endpoints are tested in a single pass for faster overall runtime.
 - **Improved probe status handling** — `MarkFailure` now preserves detailed classifier statuses (Timeout, DNSFailure, etc.).
 - **Go 1.24 syntax updates** — uses modern `for range n` loops and streamlined concurrency patterns.
+- **Renderers**: refined table/text output, ASCII/Unicode handling.
 
 ### Fixed
 - Corrected race-safe worker accounting using atomic counters.

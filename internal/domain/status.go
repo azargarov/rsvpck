@@ -48,7 +48,7 @@ func (s Status) String() string {
 	case StatusInvalid:
 		return "Invalid"
 	case StatusInvalidCommand:
-		return "Comand is invalid"
+		return "Command is invalid"
 	case StatusDNSFailure:
 		return "DNS Failure"
 	case StatusHTTPError:
