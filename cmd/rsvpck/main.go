@@ -9,20 +9,20 @@ import (
 	"github.com/azargarov/rsvpck/internal/adapters/icmp"
 	"github.com/azargarov/rsvpck/internal/adapters/render/text"
 	"github.com/azargarov/rsvpck/internal/adapters/tcp"
-	"github.com/azargarov/rsvpck/internal/config"
 	"github.com/azargarov/rsvpck/internal/app"
+	"github.com/azargarov/rsvpck/internal/config"
 	"github.com/azargarov/rsvpck/internal/domain"
 	"github.com/azargarov/rsvpck/internal/version"
-
+    "github.com/mattn/go-isatty"
 	//"github.com/azargarov/rsvpck/internal/adapters/speedtest"
 
+	"bufio"
 	"context"
 	"fmt"
-	"os"
-	"time"
 	"io"
+	"os"
 	"runtime"
-	"bufio"
+	"time"
 )
 //TODO: if TLS is stuck thre rest fails due to timeout.
 //TODO: check link before test connection.
@@ -104,6 +104,10 @@ func main() {
 }
 
 func startAnimatedSpinner(w io.Writer, parent context.Context, interval time.Duration) (stop func()) {
+    var tty bool
+    if f, ok := w.(*os.File); ok {
+       tty = isatty.IsTerminal(f.Fd()) || isatty.IsCygwinTerminal(f.Fd())
+    }
 	ctx, cancel := context.WithCancel(parent)
 	done := make(chan struct{})
 
@@ -111,14 +115,18 @@ func startAnimatedSpinner(w io.Writer, parent context.Context, interval time.Dur
 	frames := []string{"      ", ".", "..", "...", "....",".....","......", " .....", "  ....", "   ...","    ..","     ."}
 
 	// Hide cursor
-	fmt.Fprint(w, "\x1b[?25l")
+	if tty {
+       fmt.Fprint(w, "\x1b[?25l")
+    }
 
 	go func() {
 		t := time.NewTicker(interval)
 		defer func() {
 			t.Stop()
-			fmt.Fprint(w, "\r \r") // clear spinner
-			fmt.Fprint(w, "\x1b[?25h")
+			if tty {
+				fmt.Fprint(w, "\r \r") // clear spinner
+				fmt.Fprint(w, "\x1b[?25h")
+			}
 			close(done)
 		}()
 		i := 0
@@ -139,7 +147,7 @@ func startAnimatedSpinner(w io.Writer, parent context.Context, interval time.Dur
 }
 
 func printHeader() {
-	fmt.Println("\nRSVP CHECK - Connectivity Diagnostics")
+	fmt.Printf("\nRSVP CHECK - Connectivity Diagnostics (v%s)\n", version.String())
 	fmt.Println("-------------------------------------")
 }
 
@@ -173,3 +181,5 @@ func waitForEnterOnWindows() {
 //  sha256sum dist/* > dist/SHA256SUMS.txt &&
 //  ls -lh dist
 //'
+
+//ocker run  -v $(pwd):/app -w /app golang:1.23-alpine go build -trimpath -ldflags "-s -w" -o rsvpck ./cmd/rsvpck ; upx --best --lzma rsvpck
