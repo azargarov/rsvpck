@@ -4,10 +4,12 @@ import (
 	"context"
 	"errors"
 	"github.com/azargarov/rsvpck/internal/domain"
+	"github.com/azargarov/rsvpck/internal/version"
 	"net/http"
 	"net/url"
 	//"net"
 	"time"
+	"fmt"
 )
 
 const (
@@ -88,7 +90,7 @@ func (c Checker) doRequest(ctx context.Context, ep domain.Endpoint, proxyURL *ur
 	}
 
 	// a user-agent to avoid 403s
-	req.Header.Set("User-Agent", "rsvpck/0.2 (network tester)")
+	req.Header.Set("User-Agent", fmt.Sprintf( "rsvpck/%s (network tester)", version.String()))
 
 	start := time.Now()
 	resp, err := client.Do(req)
