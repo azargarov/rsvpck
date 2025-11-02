@@ -3,6 +3,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.3.1] — 2025-11-02
+
+### Added
+- Centralized versioning via `internal/version` package.
+- `httpx` adapter migrated to use the version package.
+
+### Changed
+- Cursor visibility now toggles **only** when attached to a TTY (safer UX in pipes/CI).
+
+### Tests
+- Increased coverage across domain, app (executor), adapters (`httpx`, text renderer), and config loaders.
+
+### Docs
+- Fixed typos; updated CHANGELOG and ROADMAP.
+
+**Notes:** Default testing policy remains **Exhaustive** for consistency.
+
 ## [v0.3.0] — 2025-10-26
 
 ### Added
