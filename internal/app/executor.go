@@ -50,7 +50,7 @@ func (e *Executor) Run(ctx context.Context, config domain.NetTestConfig) domain.
 	return domain.AnalyzeConnectivity(probes, config)
 }
 
-func (e Executor) runEndpointCheck(ctx context.Context, endpoints []domain.Endpoint) []domain.Probe {
+func (e Executor) runEndpointCheck(parentctx context.Context, endpoints []domain.Endpoint) []domain.Probe {
 
 	n := len(endpoints)
 	if n == 0 {
@@ -59,7 +59,7 @@ func (e Executor) runEndpointCheck(ctx context.Context, endpoints []domain.Endpo
 
 	// pass logger to pool to discard messages
 	logger := lg.NewDiscard()
-    ctx = lg.Attach(ctx, logger)
+    ctx := lg.Attach(parentctx, logger)
 	
 	results := make([]domain.Probe, n)
 	done := make(chan struct{}, n)
@@ -80,7 +80,10 @@ func (e Executor) runEndpointCheck(ctx context.Context, endpoints []domain.Endpo
 			CleanupFunc: func() { done <- struct{}{} },
 			Retry: &wp.RetryPolicy{Attempts: attempts, Initial: initialTimeout, Max: maxTimeout},
 		}
-		_ = e.pool.Submit(job)
+		if err := e.pool.Submit(job); err != nil {
+			results[i] = domain.NewFailedProbe(ep, domain.StatusUnknown, err)
+			done <- struct{}{}
+		}
 	}
 
 	// Wait for all
