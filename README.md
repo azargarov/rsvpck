@@ -1,5 +1,7 @@
 # rsvpck — RSvP Connectivity Checker
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 **rsvpck** is a tiny, single-binary network diagnostic that checks connectivity across **Direct Internet**, **Proxy**, and **VPN** paths using concurrent probes (ICMP, DNS, TCP, HTTP, TLS). Results are rendered as a compact table (default) or plain text. 
 
 ## Features
