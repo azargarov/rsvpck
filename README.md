@@ -33,7 +33,6 @@ Download a release artifact for your OS from GitHub Releases and run:
 - **Concurrency:** The `app.Executor` orchestrates concurrent probe jobs using a reusable worker-pool with retry/backoff.  
 - **Extensibility:** Each probe type is a pluggable adapter implementing a common interface.  
 - **Resilience:** Transient network errors trigger exponential backoff and retry policies.  
-- **Observability:** Structured logging (`zlog`) and contextual traces make each probe’s result transparent.  
 - **Portability:** Built as a single statically-linked binary for Linux and Windows, requiring no dependencies.
 
 ## Execution Flow
@@ -45,3 +44,14 @@ Download a release artifact for your OS from GitHub Releases and run:
 5. Renderer outputs table or text summary.  
 6. Exit code reflects overall connectivity status.
 
+## Development
+
+To build and test locally:
+
+```bash
+git clone https://github.com/azargarov/rsvpck.git
+cd rsvpck
+go mod tidy
+go build ./cmd/rsvpck
+go test ./... -v -race
+```
